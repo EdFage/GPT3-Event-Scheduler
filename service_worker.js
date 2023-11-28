@@ -19,20 +19,21 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
             } else {
                 const apiKey = result.apiKey;
                 const endpoint = "https://api.openai.com/v1/chat/completions";
-
+                const now = new Date();
                 const model = "gpt-3.5-turbo";
                 const prompt = `${info.selectionText}`
                 const max_tokens = 256;
                 const messages = [
                     {
                       role: "system",
-                      content: "You create google calendar URLs from text. In all your responses, return only the google calendar url."
+                      content: `You are part of a chrome extension that creates google calendar events.  Users select some text on a website and send it to you. You must then create a google calendar event URL based on this text. Return only a google calendar URL and nothing else.le calendar URLs from text. In all your responses, return only the google calendar URL. Note that the current date is ${now}.`
                     },
                     {
                       role: "user",
                       content: prompt
                     }
                   ];
+                  console.log(messages);
                   
                   fetch(endpoint, {
                     method: "POST",
@@ -48,7 +49,14 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
                   })
                   .then(response => response.json())
                   .then(data => {
-                    console.log(data);
+                    const calendarURL = data.choices[0].message.content;
+                        chrome.scripting.insertCSS({
+                            target: { tabId: tab.id },
+                            css: 'body { cursor: default; }'
+                        });
+                        chrome.tabs.create({
+                            url: calendarURL
+                        });
                   });
                     
             }
