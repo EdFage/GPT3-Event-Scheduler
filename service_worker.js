@@ -20,17 +20,9 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
                 const apiKey = result.apiKey;
                 const endpoint = "https://api.openai.com/v1/chat/completions";
 
-                const now = new Date();
-                const localTime = now.toLocaleTimeString();
-                const localDate = now.toLocaleDateString();
-
                 const model = "gpt-3.5-turbo";
-                const prompt = `"""
-                Create a Google Calendar link to add an event to Google Calendar based on this text: ${info.selectionText}.
-                Take into account that my current local time is ${localTime}, and today is ${localDate}. 
-                The final output should solely consist of the Google Calendar link.
-                """`
-                const message = {role: "user", content: prompt};
+                const prompt = `"${info.selectionText}"`
+                const message = [{role: "system", content: "You create google calendar URLs from text. In all your responses, return only the google calendar url."}, {content: prompt}];
                 const max_tokens = 256;
 
                 fetch(endpoint, {
